@@ -30,6 +30,17 @@ const TaskForm: React.FC<TaskFormProps> = ({ isOpen, onClose, onSubmit, boards, 
     }
   }, [currentBoardId]);
 
+  // Clear form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setTitle('');
+      setDescription('');
+      setSelectedBoardId(currentBoardId || '');
+      setSelectedColumnId('');
+      setErrors(null);
+    }
+  }, [isOpen, currentBoardId]);
+
   // Filter columns based on selected board
   const availableColumns = columns.filter(col => col.boardId === selectedBoardId);
 
@@ -40,12 +51,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ isOpen, onClose, onSubmit, boards, 
     const result = taskCreate.safeParse({ title, description, columnId: selectedColumnId });
     if (result.success) {
       onSubmit({ title, description, columnId: selectedColumnId });
-      setTitle('');
-      setDescription('');
-      setSelectedBoardId('');
-      setSelectedColumnId('');
-      setErrors(null);
-      // Don't close modal here - let parent handle it after success
+      // Don't clear form here - let it clear when modal closes after success
     } else {
       setErrors(result.error.flatten().fieldErrors);
     }

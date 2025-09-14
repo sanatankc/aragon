@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { boardCreate } from '@/lib/validation';
 import Modal from '../ui/Modal';
 import Input from '../ui/Input';
@@ -15,6 +15,14 @@ const BoardForm: React.FC<BoardFormProps> = ({ isOpen, onClose, onSubmit, isLoad
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
 
+  // Clear form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setName('');
+      setError(null);
+    }
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoading) return; // Prevent submission during loading
@@ -22,9 +30,7 @@ const BoardForm: React.FC<BoardFormProps> = ({ isOpen, onClose, onSubmit, isLoad
     const result = boardCreate.safeParse({ name });
     if (result.success) {
       onSubmit({ name });
-      setName('');
-      setError(null);
-      // Don't close modal here - let parent handle it after success
+      // Don't clear form here - let it clear when modal closes after success
     } else {
       setError(result.error.flatten().fieldErrors.name?.[0] || null);
     }
